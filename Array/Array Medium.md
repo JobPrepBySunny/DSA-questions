@@ -1,6 +1,7 @@
 
 ---
-# Medium Array Coding Problems (Java Solutions)
+
+# Medium Array Coding Problems (with Questions + Java Solutions)
 
 ## 📌 Navigation
 
@@ -29,34 +30,44 @@
 
 ---
 
-> You can wrap all methods inside a single class like
-> `public class MediumArrayProblems { ... }`
-> for practice / reuse.
+> You can put all methods inside a class like
+> `public class MediumArrayProblems { ... }` for practice.
 
 ---
 
 ## Next Permutation
 
-**Logic:**
-Find first index `i` from right where `nums[i] < nums[i+1]`.
-Find just greater element to the right and swap, then reverse suffix.
-If no such `i`, just reverse entire array (last permutation → first).
+**Problem:**
+You are given an array `nums` representing a permutation of numbers. Rearrange `nums` into the **next lexicographically greater permutation**.
+If such arrangement is not possible (already highest), rearrange it to the **lowest possible order** (sorted ascending).
+You must do this in-place.
+
+**Logic (Steps):**
+
+1. From the right, find the first index `i` such that `nums[i] < nums[i + 1]`.
+2. From the right, find the first number greater than `nums[i]` and swap them.
+3. Reverse the part of the array from `i + 1` to the end.
+
+**Java Solution:**
 
 ```java
 public static void nextPermutation(int[] nums) {
     int n = nums.length;
     int i = n - 2;
 
+    // 1. Find first decreasing element from right
     while (i >= 0 && nums[i] >= nums[i + 1]) {
         i--;
     }
 
+    // 2. If found, find element just greater than nums[i] from right and swap
     if (i >= 0) {
         int j = n - 1;
         while (nums[j] <= nums[i]) j--;
         swap(nums, i, j);
     }
 
+    // 3. Reverse from i+1 to end
     reverse(nums, i + 1, n - 1);
 }
 
@@ -73,16 +84,22 @@ private static void reverse(int[] nums, int l, int r) {
 }
 ```
 
-**Complexity:** `O(n)` time, `O(1)` space.
-
 ---
 
 ## Majority Element
 
-> Element appearing **more than n/2 times** (guaranteed to exist).
+**Problem:**
+You are given an integer array `nums`. A **majority element** is the element that appears **more than n/2 times**.
+Assume such element **always exists**. Return that element.
 
 **Logic:**
-Boyer–Moore voting: maintain candidate + count.
+Use **Boyer–Moore Voting**:
+
+* Maintain a candidate and a counter.
+* When counter is 0, choose current element as candidate.
+* Increase counter if current equals candidate, else decrease.
+
+**Java Solution:**
 
 ```java
 public static int majorityElement(int[] nums) {
@@ -97,16 +114,21 @@ public static int majorityElement(int[] nums) {
 }
 ```
 
-**Complexity:** `O(n)` time, `O(1)` space.
-
 ---
 
 ## Majority Element II
 
-> All elements appearing **more than n/3 times** (at most 2 such elements).
+**Problem:**
+You are given an integer array `nums`. Find all elements that appear **more than ⌊n/3⌋ times**.
+There can be **at most 2** such elements.
 
 **Logic:**
-Extended Boyer–Moore with 2 candidates, then verify.
+
+* Use extended Boyer–Moore with **two candidates**.
+* First pass: find two potential candidates.
+* Second pass: count their actual frequencies and add valid ones.
+
+**Java Solution:**
 
 ```java
 import java.util.*;
@@ -146,11 +168,17 @@ public static List<Integer> majorityElementII(int[] nums) {
 
 ## Minimize the Heights II
 
-> Given heights `arr[]` and integer `k`, increase or decrease **each element by at most k**.
-> Minimize max height − min height.
+**Problem:**
+Given an array `arr[]` of `n` tower heights and a value `k`. You can **add or subtract k** to each height **at most once**.
+Find the **minimum possible difference** between the tallest and shortest tower after these operations.
 
 **Logic:**
-Sort array, assume initial diff = last − first. Then try modifying prefix as +k, suffix as −k and track min diff.
+
+1. Sort the array.
+2. Initial difference = `arr[n-1] - arr[0]`.
+3. Assume we make some prefix smaller and suffix larger, update min diff by checking new min and new max.
+
+**Java Solution:**
 
 ```java
 import java.util.*;
@@ -191,8 +219,16 @@ public static int minimizeHeightsII(int[] arr, int k) {
 
 ## Maximum Subarray Sum
 
-**Logic:**
-Kadane’s Algorithm: running sum reset when it goes below 0.
+**Problem:**
+Given an integer array `nums`, find a **contiguous subarray** with the **maximum sum** and return that sum.
+
+**Logic (Kadane’s Algorithm):**
+
+* Keep a running sum `curr`.
+* If `curr` becomes negative, reset it to current element.
+* Track maximum seen so far.
+
+**Java Solution:**
 
 ```java
 public static int maxSubArray(int[] nums) {
@@ -211,8 +247,15 @@ public static int maxSubArray(int[] nums) {
 
 ## Maximum Product Subarray
 
+**Problem:**
+Given an integer array `nums`, find a contiguous subarray within `nums` that has the **largest product** and return that product.
+
 **Logic:**
-Because negative can flip sign, keep both maxProd and minProd at each step.
+
+* Maintain `maxProd` and `minProd` at each step because a negative can flip sign.
+* If current number is negative, swap `maxProd` and `minProd`.
+
+**Java Solution:**
 
 ```java
 public static int maxProductSubarray(int[] nums) {
@@ -239,8 +282,17 @@ public static int maxProductSubarray(int[] nums) {
 
 ## Product of Array Except Self
 
+**Problem:**
+Given integer array `nums`, return an array `answer` such that
+`answer[i] = product of all elements of nums except nums[i]`.
+You must not use division and must run in `O(n)`.
+
 **Logic:**
-Prefix product pass, then suffix product pass (no division).
+
+* First pass (left to right): store prefix product.
+* Second pass (right to left): multiply with suffix product.
+
+**Java Solution:**
 
 ```java
 public static int[] productExceptSelf(int[] nums) {
@@ -267,10 +319,17 @@ public static int[] productExceptSelf(int[] nums) {
 
 ## Subarrays with Product Less Than K
 
-> Count subarrays where product `< k`.
+**Problem:**
+Given an array of positive integers `nums` and an integer `k`,
+return the **number of contiguous subarrays** where the product of all elements is **less than k**.
 
-**Logic:**
-Sliding window with product, shrink when product ≥ k.
+**Logic (Sliding Window):**
+
+* Maintain a window `[left, right]` and current product.
+* Expand right; while product ≥ k, move left and divide.
+* At each step, number of valid subarrays ending at `right` = `right - left + 1`.
+
+**Java Solution:**
 
 ```java
 public static int numSubarrayProductLessThanK(int[] nums, int k) {
@@ -295,11 +354,17 @@ public static int numSubarrayProductLessThanK(int[] nums, int k) {
 
 ## Split Into Three Equal Sum Segments
 
-> Number of ways to split into 3 contiguous parts having equal sum.
+**Problem:**
+Given an array `nums`, count the number of ways to split it into **three non-empty contiguous parts** such that the **sum of each part is equal**.
 
 **Logic:**
-Total sum must be divisible by 3.
-Count prefix positions where prefixSum == sum/3 and where prefixSum == 2*sum/3 (for later indices).
+
+1. Compute `totalSum`. If not divisible by 3 → 0 ways.
+2. Let `target = totalSum / 3`, `target2 = 2 * target`.
+3. Traverse and count positions where prefix sum equals `target`,
+   and when prefix sum equals `target2`, add how many `target` positions seen before.
+
+**Java Solution:**
 
 ```java
 public static long splitIntoThreeEqualSums(int[] nums) {
@@ -314,7 +379,7 @@ public static long splitIntoThreeEqualSums(int[] nums) {
     long countTarget1 = 0;
     long ways = 0;
 
-    // last cut must be before last element
+    // last cut before last element
     for (int i = 0; i < nums.length - 1; i++) {
         prefix += nums[i];
         if (prefix == target2) {
@@ -332,10 +397,16 @@ public static long splitIntoThreeEqualSums(int[] nums) {
 
 ## Maximum Consecutive 1s After Flipping 0s
 
-> Find max consecutive 1s if you can flip **at most `k` zeros** to 1.
+**Problem:**
+Given a binary array `nums` and an integer `k`, you can flip at most `k` zeros to 1.
+Find the **maximum length of consecutive 1s** you can get.
 
-**Logic:**
-Sliding window tracking count of zeros; shrink when zeros > k.
+**Logic (Sliding Window):**
+
+* Maintain window `[left, right]` with at most `k` zeros.
+* Expand `right`, if zeros > k, move `left` forward until zeros ≤ k.
+
+**Java Solution:**
 
 ```java
 public static int maxConsecutiveOnesAfterFlips(int[] nums, int k) {
@@ -356,15 +427,20 @@ public static int maxConsecutiveOnesAfterFlips(int[] nums, int k) {
 
 ## Last Moment Before Ants Fall Out of Plank
 
-> Plank of length `n`. Ants moving left or right at 1 unit/sec.
-> `left[]` = positions of ants moving left, `right[]` = positions of ants moving right.
-> Find the last moment when an ant is still on the plank.
+**Problem:**
+A plank of length `n`.
+Some ants move to the **left** (their positions in `left[]`) and some to the **right** (`right[]`).
+All move at speed 1. When two ants meet, they just pass through (equivalent to swapping identities).
+Return the **last moment when any ant is on the plank**.
 
 **Logic:**
-Ants are indistinguishable after collisions → just max of:
 
-* farthest left ant time = its position
-* farthest right ant time = `n - position`
+* The last time is just the maximum of:
+
+  * Time for left-moving ants to fall → their positions.
+  * Time for right-moving ants to fall → `n - position`.
+
+**Java Solution:**
 
 ```java
 public static int lastMoment(int n, int[] left, int[] right) {
@@ -383,10 +459,21 @@ public static int lastMoment(int n, int[] left, int[] right) {
 
 ## Find 0 with Farthest 1s in a Binary
 
-> In a binary array, find index of `0` to flip to `1` to get **longest contiguous 1s**.
+**Problem:**
+You are given a binary array (only 0s and 1s).
+You can flip **exactly one `0` to `1`**.
+Return the **index of the 0** to flip so that the resulting array has the **longest contiguous sequence of 1s**.
+If multiple, return any one.
 
 **Logic:**
-Track index of previous zero and previous-to-previous zero to maintain longest window with at most 1 zero.
+
+* Keep track of:
+
+  * `prevZero` = index of last zero.
+  * `prevPrevZero` = index of zero before that.
+* Window with at most 1 zero gives longest sequence; its zero index = answer.
+
+**Java Solution:**
 
 ```java
 public static int indexOfZeroToFlip(int[] nums) {
@@ -403,7 +490,7 @@ public static int indexOfZeroToFlip(int[] nums) {
 
         if (len > bestLen) {
             bestLen = len;
-            bestIndex = prevZero; // flip this zero
+            bestIndex = prevZero;
         }
     }
     return bestIndex;
@@ -414,10 +501,18 @@ public static int indexOfZeroToFlip(int[] nums) {
 
 ## Intersection of Interval Lists
 
-> Given two sorted lists of disjoint intervals, return their intersections.
+**Problem:**
+You are given two lists of **disjoint sorted intervals**, `A` and `B`.
+Return the list of intervals that represent the **intersection** of these two.
 
 **Logic:**
-Two pointers; overlap = `max(start1, start2)` to `min(end1, end2)` if valid.
+
+* Use two pointers `i` and `j`.
+* For `A[i]` and `B[j]`, intersection start = `max(startA, startB)`, end = `min(endA, endB)`.
+* If `start <= end`, add it.
+* Move the pointer whose interval ends first.
+
+**Java Solution:**
 
 ```java
 import java.util.*;
@@ -446,11 +541,17 @@ public static int[][] intervalIntersection(int[][] A, int[][] B) {
 
 ## Rearrange Array Elements by Sign
 
-> Rearrange so that positives and negatives **alternate**, starting with positive.
-> (Assume equal count or difference ≤ 1).
+**Problem:**
+You are given an integer array `nums` containing positive and negative numbers.
+Rearrange the array so that **positive and negative numbers alternate**, starting with a positive.
+If extra positives/negatives remain, they can go at the end.
 
 **Logic:**
-Store positives and negatives separately, then merge.
+
+* Store positives and negatives in separate arrays.
+* Then fill back into `nums` alternating between positive and negative.
+
+**Java Solution:**
 
 ```java
 public static int[] rearrangeBySign(int[] nums) {
@@ -482,11 +583,22 @@ public static int[] rearrangeBySign(int[] nums) {
 
 ## Meeting Scheduler for Two Persons
 
-> Each person has available slots `[start, end]`.
-> Find earliest common slot of at least `duration` minutes.
+**Problem:**
+Two people have lists of available time slots: `slots1` and `slots2`.
+Each slot is `[start, end]` (in minutes).
+Given a required `duration`, find the **earliest time slot** that is common to both persons and has at least that duration.
+Return `[start, start + duration]`, or empty list if not possible.
 
 **Logic:**
-Sort both slot lists, use two pointers, check overlap length.
+
+* Sort both slot lists by start time.
+* Use two pointers; for each pair of slots, find overlap:
+
+  * `start = max(start1, start2)`
+  * `end = min(end1, end2)`
+* If `end - start >= duration`, answer found.
+
+**Java Solution:**
 
 ```java
 import java.util.*;
@@ -515,11 +627,22 @@ public static List<Integer> minAvailableDuration(int[][] slots1, int[][] slots2,
 
 ## Longest Mountain Subarray
 
-> A mountain: strictly increasing then strictly decreasing, length ≥ 3.
-> Return length of longest mountain.
+**Problem:**
+An array forms a **mountain** if:
+
+* It strictly increases to a peak,
+* Then strictly decreases after that,
+* And length is at least 3.
+
+Given `arr`, return the **length of the longest mountain**. If none, return 0.
 
 **Logic:**
-For each index, precompute increasing length from left and decreasing from right, then combine.
+
+* `up[i]` = length of increasing sequence ending at `i`.
+* `down[i]` = length of decreasing sequence starting at `i`.
+* For each `i`, if `up[i] > 0` and `down[i] > 0`, mountain length = `up[i] + down[i] + 1`.
+
+**Java Solution:**
 
 ```java
 public static int longestMountain(int[] arr) {
@@ -555,11 +678,21 @@ public static int longestMountain(int[] arr) {
 
 ## Transform and Sort Array
 
-> Given `nums` and `a, b, c`, transform each element:
-> `f(x) = a*x*x + b*x + c`, then return sorted result.
+**Problem:**
+You are given a **sorted** array `nums` and three integers `a`, `b`, `c`.
+Apply the function `f(x) = a*x*x + b*x + c` to each element `x` in `nums`.
+Return the **resulting array in sorted order**.
 
 **Logic:**
-Apply function; if `a == 0`, it’s linear; otherwise use two-pointer technique because f(x) is monotonic on each side of vertex when nums is sorted. (Assume `nums` sorted.)
+
+* `f(x)` is a quadratic.
+* When `nums` is sorted:
+
+  * If `a >= 0`, largest values are at the ends (like a U shape).
+  * If `a < 0`, smallest values are at the ends (inverted U).
+* Use two-pointer technique to fill result from appropriate side.
+
+**Java Solution:**
 
 ```java
 public static int[] sortTransformedArray(int[] nums, int a, int b, int c) {
@@ -602,11 +735,16 @@ private static int transform(int x, int a, int b, int c) {
 
 ## Minimum Swaps To Group All Ones
 
-> Minimum swaps needed to group all `1`s together (adjacent).
+**Problem:**
+Given a binary array `nums`, find the **minimum number of swaps** needed to group **all 1s together** in a contiguous block.
 
 **Logic:**
-Let `ones = count(1)`.
-Use sliding window of size `ones` and minimize number of zeros inside.
+
+1. Count total number of `1`s = `ones`.
+2. Consider every window of size `ones`.
+3. Minimum swaps = minimum number of `0`s present in any such window.
+
+**Java Solution:**
 
 ```java
 public static int minSwapsToGroupOnes(int[] nums) {
@@ -639,11 +777,16 @@ public static int minSwapsToGroupOnes(int[] nums) {
 
 ## Minimum Moves To Equalize Array
 
-> In one move, you can **increment or decrement any element by 1**.
-> Find minimum moves to make all elements equal.
+**Problem:**
+Given `nums`, in one move you can **increase or decrease any element by 1**.
+Return the **minimum number of moves** to make all array elements equal.
 
 **Logic:**
-Optimal target is the **median**; total moves = sum of absolute differences from median.
+
+* Best value to make all elements equal to is the **median**.
+* Total moves = sum of `|nums[i] − median|`.
+
+**Java Solution:**
 
 ```java
 import java.util.*;
@@ -664,13 +807,21 @@ public static int minMovesToEqualize(int[] nums) {
 
 ## Minimum Indices To Equal Even-Odd Sums
 
-> Count indices such that **removing nums[i]** makes
-> sum of elements at even indices == sum of elements at odd indices.
-
-(After removal, indices to the right shift by 1, so parity changes.)
+**Problem:**
+Given `nums`, consider removing exactly one element at index `i`.
+After removal, elements to the right shift left, so their index parity (even/odd) changes.
+Count how many indices `i` we can remove such that **sum of elements at even indices = sum of elements at odd indices** in the new array.
 
 **Logic:**
-Prefix sums for even/odd, then simulate removal.
+
+* Precompute prefix sums for even and odd indices.
+* For each index `i`, compute:
+
+  * Left even sum, left odd sum (unchanged).
+  * Right even sum and odd sum (but parity flips after removal).
+* Check if final even sum == final odd sum.
+
+**Java Solution:**
 
 ```java
 public static int countIndicesToMakeEvenOddSumsEqual(int[] nums) {
@@ -690,13 +841,11 @@ public static int countIndicesToMakeEvenOddSumsEqual(int[] nums) {
     int count = 0;
 
     for (int i = 0; i < n; i++) {
-        // sums on left side stay same
         int leftEven = prefEven[i];
         int leftOdd = prefOdd[i];
 
-        // on right side, indices shift parity
-        int rightEven = totalOdd - prefOdd[i + 1];
-        int rightOdd = totalEven - prefEven[i + 1];
+        int rightEven = totalOdd - prefOdd[i + 1]; // becomes even after shift
+        int rightOdd = totalEven - prefEven[i + 1]; // becomes odd after shift
 
         if (leftEven + rightEven == leftOdd + rightOdd) {
             count++;
@@ -708,7 +857,7 @@ public static int countIndicesToMakeEvenOddSumsEqual(int[] nums) {
 
 ---
 
-If you want next, I can:
+If you want, next I can:
 
-* Combine **all easy + medium** into a single big GitHub-ready README, or
-* Add a small **problem statement line** above each code block for quick recall.
+* Combine **Easy + Medium** into one big GitHub DSA repo layout, or
+* Add a **small example** under each problem to make it even easier to understand.
